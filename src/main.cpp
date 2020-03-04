@@ -77,10 +77,20 @@ public:
 
     void WriteShort(uint16_t value)
     {
-        m_Data[m_Index + 0] = (uint8_t)(value << 8) & 0xFF;
-        m_Data[m_Index + 1] = (uint8_t)(value << 0) & 0xFF;
+        m_Data[m_Index + 0] = (uint8_t)(value >> 8) & 0xFF;
+        m_Data[m_Index + 1] = (uint8_t)(value >> 0) & 0xFF;
         m_Index += 2;
         m_Length += 2;
+    }
+
+    void WriteInt(int32_t value)
+    {
+        m_Data[m_Index + 0] = (uint8_t)(value >> 8) & 0xFF;
+        m_Data[m_Index + 1] = (uint8_t)(value >> 8) & 0xFF;
+        m_Data[m_Index + 2] = (uint8_t)(value >> 8) & 0xFF;
+        m_Data[m_Index + 3] = (uint8_t)(value >> 8) & 0xFF;
+        m_Index += 4;
+        m_Length += 4;
     }
 
     void WriteBytes(const uint8_t* bytes, int count)
@@ -118,7 +128,7 @@ public:
         delete m_Reader;
     }
 
-    void CreateMessage(const uint8_t addressHigh[4], const uint8_t addressLow[4], std::vector<uint8_t> payload)
+    void CreateMessage(const int32_t addressHigh, const int32_t addressLow, std::vector<uint8_t> payload)
     {
         m_Writer->Reset();
 
@@ -128,8 +138,8 @@ public:
         m_Writer->WriteByte(0x00); // Frame type.
         m_Writer->WriteByte(0x00); // Frame id (always 0 if no response required).
 
-        m_Writer->WriteBytes(addressHigh, 4); // Street.
-        m_Writer->WriteBytes(addressLow, 4);  // City.
+        m_Writer->WriteInt(addressHigh); // Street.
+        m_Writer->WriteInt(addressLow);  // City.
 
         m_Writer->WriteByte(0x01); // Options : Disable ACK.
 
@@ -162,15 +172,16 @@ public:
         return checksum;
     }
 
-    bool send_service(pololu_3pi_comm::XbeeSend::Request& req,
-                    pololu_3pi_comm::XbeeSend::Response& res)
+    bool packetCallback(const protocol_msgs::Packet& packet)
     {
-        string addrHigh = string(reinterpret_cast<const char*>(req.AddrHigh.data()), req.AddrHigh.size());
-        string addrLow = string(reinterpret_cast<const char*>(req.AddrLow.data()), req.AddrLow.size());
-        string payload = string(reinterpret_cast<const char*>(req.Payload.data()), req.Payload.size());
+        // Debug mode may not be supported o.o!
+        // Potencial error lines below
+        string addrHigh = string(reinterpret_cast<const char*>(packet.addressHigh, packet.addressHigh.size());
+        string addrLow = string(reinterpret_cast<const char*>(packet.addressLow, packet.addressLow.size());
+        string payload = string(reinterpret_cast<const char*>(packet.data, data.size());
         cout << addrHigh << ":" << addrLow << " -> " << payload << endl;
 
-        CreateMessage(req.AddrHigh.data(), req.AddrLow.data(), req.Payload);
+        CreateMessage(packet.addressHigh, packet.addressLow, data;
         return true;
     }
 
@@ -187,8 +198,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "xbee_comm");
     ros::NodeHandle nodeHandle;
 
-    ros::ServiceServer service = nodeHandle.advertiseService("xbeesend", &Xbee::send_service, &xbee);
-    ROS_INFO("[XbeeSend] Ready to serve you mindless fools!");
+    ros::Subscriber subscriber = nodeHangle.subscriber("packet", 1000, &Xbee::packetCallback, &xbee);
 
     ros::spin();
 
