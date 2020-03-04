@@ -173,7 +173,7 @@ public:
         return checksum;
     }
 
-    bool packetCallback(const protocol_msgs::Packet& packet)
+    bool packetCallback(const protocol_msgs::Packet::ConstPtr& packet)
     {
         // Debug mode may not be supported o.o!
         // Potencial error lines below
