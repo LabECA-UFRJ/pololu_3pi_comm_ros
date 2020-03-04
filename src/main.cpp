@@ -181,7 +181,7 @@ public:
         string payload = string(reinterpret_cast<const char*>(packet.data, data.size());
         cout << addrHigh << ":" << addrLow << " -> " << payload << endl;
 
-        CreateMessage(packet.addressHigh, packet.addressLow, data;
+        CreateMessage(packet.addressHigh, packet.addressLow, packet.data);
         return true;
     }
 
