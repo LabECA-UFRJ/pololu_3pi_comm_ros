@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "protocol_msgs/Packet.h"
-//#include "pololu_3pi_comm/XbeeSend.h"
+
+#include "SimpleSerial.h"
 
 #include <iostream>
 
@@ -129,7 +130,7 @@ public:
         delete m_Reader;
     }
 
-    void CreateMessage(const int32_t addressHigh, const int32_t addressLow, std::vector<uint8_t> payload)
+    int CreateMessage(const int32_t addressHigh, const int32_t addressLow, std::vector<uint8_t> payload)
     {
         m_Writer->Reset();
 
@@ -152,10 +153,13 @@ public:
 
         cout << "Message size: " << m_Writer->Length() << endl;
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < m_Writer->Length(); i++)
+        {
             cout << hex << static_cast<int>(m_Reader->ReadByte()) << " ";
         }
         cout << flush;
+
+        return m_Writer->Length();
     }
 
     uint8_t ComputeChecksum()
@@ -175,21 +179,38 @@ public:
 
     void packetCallback(const protocol_msgs::Packet::ConstPtr& packet)
     {
-        CreateMessage(packet->addressHigh, packet->addressLow, packet->data);
+        int length = CreateMessage(packet->addressHigh, packet->addressLow, packet->data);
+        m_Serial->write(m_Data, length);
+    }
+
+    void SetSerial(SimpleSerial* serial)
+    {
+        m_Serial = serial;
     }
     
 private:
     Reader* m_Reader;
     Writer* m_Writer;
+    SimpleSerial* m_Serial;
     unsigned char m_Data[64];
 };
 
 int main(int argc, char** argv)
 {
     Xbee xbee;
+    SimpleSerial serial;
 
-    ros::init(argc, argv, "xbee_comm");
+    ros::init(argc, argv, "serial_xbee");
     ros::NodeHandle nodeHandle;
+
+    string port; 
+    nodeHandle.param<std::string>("port", port, "/dev/ttyUSB0");
+
+    int baud_rate;
+    nodeHandle.param<int>("baud", baud_rate, 9600);
+
+    serial.open(port, baud_rate);
+    xbee.SetSerial(&serial);
 
     ros::Subscriber subscriber = nodeHandle.subscribe<protocol_msgs::Packet>("packet", 1000, &Xbee::packetCallback, &xbee);
 
