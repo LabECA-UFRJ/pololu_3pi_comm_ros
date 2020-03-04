@@ -173,17 +173,9 @@ public:
         return checksum;
     }
 
-    bool packetCallback(const protocol_msgs::Packet::ConstPtr& packet)
+    void packetCallback(const protocol_msgs::Packet::ConstPtr& packet)
     {
-        // Debug mode may not be supported o.o!
-        // Potencial error lines below
-        string addrHigh = string(reinterpret_cast<const char*>(packet.addressHigh, packet.addressHigh.size());
-        string addrLow = string(reinterpret_cast<const char*>(packet.addressLow, packet.addressLow.size());
-        string payload = string(reinterpret_cast<const char*>(packet.data, data.size());
-        cout << addrHigh << ":" << addrLow << " -> " << payload << endl;
-
-        CreateMessage(packet.addressHigh, packet.addressLow, packet.data);
-        return true;
+        CreateMessage(packet->addressHigh, packet->addressLow, packet->data);
     }
     
 private:
@@ -199,7 +191,7 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "xbee_comm");
     ros::NodeHandle nodeHandle;
 
-    ros::Subscriber subscriber = nodeHangle.subscriber("packet", 1000, &Xbee::packetCallback, &xbee);
+    ros::Subscriber subscriber = nodeHandle.subscribe<protocol_msgs::Packet>("packet", 1000, &Xbee::packetCallback, &xbee);
 
     ros::spin();
 
