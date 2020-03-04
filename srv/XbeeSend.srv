@@ -1,4 +1,0 @@
-uint8[4] AddrHigh
-uint8[4] AddrLow
-uint8[]  Payload
----
