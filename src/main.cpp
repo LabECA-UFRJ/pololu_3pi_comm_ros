@@ -1,6 +1,6 @@
 #include "ros/ros.h"
-#include "protocol/Packet.h"
-#include "pololu_3pi_comm/XbeeSend.h"
+#include "protocol_msgs/Packet.h"
+//#include "pololu_3pi_comm/XbeeSend.h"
 
 #include <iostream>
 
@@ -86,10 +86,10 @@ public:
 
     void WriteInt(int32_t value)
     {
-        m_Data[m_Index + 0] = (uint_t)(value >> 8) & 0xFF;
-        m_Data[m_Index + 1] = (uint_t)(value >> 16) & 0xFF;
-        m_Data[m_Index + 2] = (uint_t)(value >> 24) & 0xFF;
-        m_Data[m_Index + 3] = (uint_t)(value >> 32) & 0xFF;
+        m_Data[m_Index + 0] = (uint8_t)(value >> 24) & 0xFF;
+        m_Data[m_Index + 1] = (uint8_t)(value >> 16) & 0xFF;
+        m_Data[m_Index + 2] = (uint8_t)(value >> 8) & 0xFF;
+        m_Data[m_Index + 3] = (uint8_t)(value >> 0) & 0xFF;
         m_Index += 4;
         m_Length += 4;
     }
