@@ -10,6 +10,7 @@ project(pololu_3pi_comm)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   message_generation
+  protocol_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -53,10 +54,9 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-   FILES
-   XbeeSend.srv
- )
+# add_service_files(
+#   FILES
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
