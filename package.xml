@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>pololu_3pi_comm</name>
+  <name>serial_xbee</name>
   <version>0.0.0</version>
-  <description>The pololu-3pi-comm package</description>
+  <description>The serial xbee package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
