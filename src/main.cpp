@@ -170,7 +170,7 @@ public:
         int length = m_Writer->Length();
         uint8_t checksum = 0xFF;
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length - 3; i++) {
             checksum -= m_Reader->ReadByte();
         }
 
@@ -204,10 +204,10 @@ int main(int argc, char** argv)
     ros::NodeHandle nodeHandle;
 
     string port; 
-    nodeHandle.param<std::string>("port", port, "/dev/ttyUSB0");
+    ros::param::param<std::string>("~port", port, "/dev/ttyUSB0");
 
     int baud_rate;
-    nodeHandle.param<int>("baud", baud_rate, 9600);
+    ros::param::param<int>("~baud", baud_rate, 9600);
 
     serial.open(port, baud_rate);
     xbee.SetSerial(&serial);
